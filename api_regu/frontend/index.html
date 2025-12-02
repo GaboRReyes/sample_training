@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Análisis de Viajes</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <svg class="bike-icon" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="5.5" cy="17.5" r="3.5"/>
+                        <circle cx="18.5" cy="17.5" r="3.5"/>
+                        <path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                        <path d="m12 17.5 2-6.5L8 6l2 4 3 3.5-3.5 4z"/>
+                    </svg>
+                    <div>
+                        <h1>Dashboard de Análisis de Viajes</h1>
+                        <p>Sistema de monitoreo y análisis de bicicletas compartidas</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Stats Cards -->
+        <div class="container">
+            <div class="stats-grid" id="statsCards">
+                <!-- Se llenarán dinámicamente -->
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs-container">
+                <div class="tabs">
+                    <button class="tab active" data-tab="overview">📊 Resumen General</button>
+                    <button class="tab" data-tab="hourly">🕐 Viajes por Hora</button>
+                    <button class="tab" data-tab="daily">📅 Viajes por Día</button>
+                    <button class="tab" data-tab="stations">📍 Top Estaciones</button>
+                    <button class="tab" data-tab="peak">🚴 Horas Pico</button>
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Cargando datos...</p>
+            </div>
+
+            <!-- Error -->
+            <div id="error" class="error hidden"></div>
+
+            <!-- Content Panels -->
+            <div id="overview" class="tab-content active">
+                <div class="card">
+                    <h2>Distribución por Tipo de Usuario</h2>
+                    <div class="chart-container">
+                        <canvas id="userChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="hourly" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>🕐 Viajes por Hora del Día</h2>
+                        <div class="filters">
+                            <input type="number" id="hourFilter" min="0" max="23" placeholder="Hora (0-23)" class="input">
+                            <button onclick="loadHourlyTrips()" class="btn btn-primary">Aplicar</button>
+                            <button onclick="clearHourFilter()" class="btn btn-secondary">Limpiar</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="hourlyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="daily" class="tab-content">
+                <div class="card">
+                    <h2>📅 Viajes por Día</h2>
+                    <div class="chart-container">
+                        <canvas id="dailyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div id="stations" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>📍 Top Estaciones más Utilizadas</h2>
+                        <div class="filters">
+                            <select id="stationLimit" class="input">
+                                <option value="5">Top 5</option>
+                                <option value="10" selected>Top 10</option>
+                                <option value="20">Top 20</option>
+                                <option value="50">Top 50</option>
+                            </select>
+                            <button onclick="loadTopStations()" class="btn btn-primary">Actualizar</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table id="stationsTable">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>ID Estación</th>
+                                    <th>Nombre</th>
+                                    <th>Total Viajes</th>
+                                    <th>Duración Promedio</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stationsTableBody">
+                                <!-- Se llenará dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="peak" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>🚴 Análisis de Horas Pico</h2>
+                        <div class="filters">
+                            <input type="number" id="peakHourFilter" min="0" max="23" placeholder="Hora (0-23)" class="input">
+                            <select id="peakDayFilter" class="input">
+                                <option value="">Todos los días</option>
+                                <option value="1">Domingo</option>
+                                <option value="2">Lunes</option>
+                                <option value="3">Martes</option>
+                                <option value="4">Miércoles</option>
+                                <option value="5">Jueves</option>
+                                <option value="6">Viernes</option>
+                                <option value="7">Sábado</option>
+                            </select>
+                            <button onclick="loadPeakHours()" class="btn btn-primary">Aplicar</button>
+                            <button onclick="clearPeakFilters()" class="btn btn-secondary">Limpiar</button>
+                        </div>
+                    </div>
+                    <div class="peak-content">
+                        <div class="chart-container">
+                            <canvas id="peakChart"></canvas>
+                        </div>
+                        <div class="peak-list" id="peakList">
+                            <!-- Se llenará dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <p>Dashboard de Análisis de Viajes - Sistema de Bicicletas Compartidas</p>
+                <p class="footer-sub">Desarrollado con JavaScript, Chart.js y MongoDB</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>

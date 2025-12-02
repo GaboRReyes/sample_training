@@ -6,7 +6,7 @@ const { ObjectId } = require('mongodb');
 
 /*1. Comprobar la distribución de datos por tipo de usuario. Se mostrará el tipo de usuario (usertype),
 total de viajes y duración promedio de los mismos.*/
-router.get('/trips/usertype', async (req, res)=>{
+router.get('/trips/user_distribution', async (req, res)=>{
     const db = getDB();
     const data = await db.collection('trips').aggregate([
   {
@@ -55,7 +55,7 @@ router.get('/trips/trips_by_hour', async (req, res)=>{
   {
     $project: {
       _id: 0,
-      hour:{$toString : "$_id.hour"},
+      hour: "$_id.hour",
       total_trips: 1,
       average_duration: 1
     }
@@ -68,7 +68,7 @@ router.get('/trips/trips_by_hour', async (req, res)=>{
 })
 
 /*3. Viajes por día. Se mostrará la fecha y el total de viajes en esa fecha.*/
-router.get('/trips/trip_by_day', async (req, res)=>{
+router.get('/trips/trips_by_day', async (req, res)=>{
     const db = getDB();
     const data = await db.collection('trips').aggregate([
         {

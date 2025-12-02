@@ -1,10 +1,12 @@
 const express = require('express');
+const cors = require('cors');  // ← IMPORTANTE
 const app = express();
 const { ObjectId } = require('mongodb'); 
 require('dotenv').config();
 const port = process.env.PORT || 3000;
 const { connectDB } = require('./libs/database.js');
 
+app.use(cors());  // ← IMPORTANTE: Agregar esto
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -14,9 +16,8 @@ app.get('/', (req, res) => {
 });
 
 const routes = require('./routes/routes.js');
-app.use('', routes);
+app.use('/api', routes);
 
-// Conecta a la base de datos y luego inicia el servidor
 connectDB().then(() => {
   app.listen(port, () => {
     console.log(`App listening on port ${port}!`);  
